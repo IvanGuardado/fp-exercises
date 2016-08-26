@@ -1,3 +1,5 @@
+package chapter3
+
 import scala.annotation.tailrec
 
 sealed trait List[+A]
@@ -89,68 +91,3 @@ object List {
     case (Cons(h1, xs1), Cons(h2, xs2)) => Cons(f(h1, h2), zipWith(xs1, xs2)(f))
   }
 }
-
-import List._
-
-tail(List(1, 2, 3))
-tail(List(1))
-tail(Nil)
-
-setHead(List(2,3), 1)
-setHead(Nil, 1)
-
-drop(List(1, 2, 3), 0)
-
-dropWhile(List(1, 2, 3)) (_ < 3)
-
-init(List())
-
-length(List(1, 2))
-
-foldLeft(List(1, 2, 3), 0)((i, value) => i + value)
-
-append(List(1), List(2, 3))
-
-concatenate(List(List(1, 2), List(3, 4)))
-
-map(List(1, 2, 3))(_ + 1)
-
-filter(List(1, 2, 3))(_ < 3)
-
-flatMap(List(1, 2, 3))(a => List(a, a))
-
-flatMap(List(1, 2, 3))(a => map(List(4, 5, 6))(a + _))
-
-zipWith(List(1, 2, 3), List(1, 2, 3))((a, b) => a+b)
-
-sealed trait Tree[+A]
-case class Leaf[A](value: A) extends Tree[A]
-case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
-
-
-object Tree {
-
-  def size[A](tree : Tree[A]) : Int =  tree match {
-    case Branch(l, r) => size(l) + size(r) + 1
-    case Leaf(v) => 1
-  }
-
-  def maximum(tree: Tree[Int]) : Int = {
-    tree match {
-      case Branch(l, r) => maximum(l) max maximum(r)
-      case Leaf(v) => v
-    }
-  }
-
-  def map[A,B](tree: Tree[A])(f: A => B) : Tree[B] = tree match {
-    case Branch(l, r) => Branch(map(l)(f),map(r)(f))
-    case Leaf(v) => Leaf(f(v))
-  }
-
-
-}
-
-val tree = Branch(Branch(Leaf(5), Leaf(6)), Branch(Leaf(2), Leaf(3)))
-Tree.size(tree)
-Tree.maximum(tree)
-Tree.map(tree)(_ + 1)
