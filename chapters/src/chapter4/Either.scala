@@ -29,9 +29,12 @@ object Either {
   }
 
 
-  def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] = sys.error("todo")
+  def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] =  es.foldRight[Either[E,List[B]]](Right(Nil))((a, b) => f(a) match {
+    case Left(e) => Left(e)
+    case Right(value) => flatMap(b)(xs => Right(value :: xs))
+  })
 
-  def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = sys.error("todo")
+  def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = traverse(es)(a => a)
 
   def Try[A](a: => A): Either[Exception, A] =
     try Right(a)

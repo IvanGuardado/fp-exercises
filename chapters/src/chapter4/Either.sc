@@ -12,3 +12,7 @@ orElse(Try("unsafe".toInt))(Try(2))
 map2(Try(1), Try(2))(_ + _)
 map2(Try("unsafe".toInt), Try(2))(_ + _)
 map2(Try(2), Try("unsafe".toInt))(_ + _)
+
+sequence(List(Right(1), Right(2), Right(3)))
+
+sequence(List(Right(1), Left(2), Right(3)))
