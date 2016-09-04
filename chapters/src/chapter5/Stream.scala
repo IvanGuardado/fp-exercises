@@ -60,4 +60,45 @@ object Stream {
 
   def flatMap[A,B](xs: Stream[A])(f: A => Stream[B]): Stream[B] =
     foldRight(xs, empty: Stream[B])((a, b) => append(f(a), b))
+
+  def constant[A](v: A) : Stream[A] = unfold(v)(a => Some(a, a))
+
+  def from(v: Int) : Stream[Int] = unfold(v)(a => Some(a, a + 1))
+
+  def fibs(): Stream[Int] = unfold((0, 1))(s => {
+    val (a, b) = s
+    Some(a, (b, a + b))
+  })
+
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]) : Stream[A] = f(z) match {
+    case Some((a, s)) => cons(a, unfold(s)(f))
+    case None => empty
+  }
+
+  def zipWith[A,B,C](s1: Stream[A], s2: Stream[B])(f: (A,B) => C): Stream[C] = unfold((s1, s2))(_ match {
+    case (Cons(x, xs), Cons(x2, xs2)) => Some(f(x(), x2()), (xs(), xs2()))
+    case _ => None
+  })
+
+  def zipAll[A,B](s1: Stream[A], s2: Stream[B]): Stream[(Option[A],Option[B])] =  unfold((s1, s2))(_ match {
+    case (Cons(x, xs), Cons(x2, xs2)) => Some((Some(x()), Some(x2())), (xs(), xs2()))
+    case (Cons(x, xs), _) => Some((Some(x()), None), (xs(), empty))
+    case (_, Cons(x, xs)) => Some((None, Some(x())), (empty, xs()))
+    case _ => None
+  })
+
+  def startsWith[A](s1: Stream[A], s2: Stream[A]): Boolean = forall(zipWith(s1, s2)((a, b) => a == b))(_ == true)
+
+  def tails[A](a: Stream[A]): Stream[Stream[A]] = unfold(a)(s => s match {
+    case Cons(x, xs) => Some((s, xs()))
+    case _ => None
+  })
+
+  def hasSubsequence[A](s1: Stream[A], s2: Stream[A]): Boolean = exists(tails(s1))(startsWith(_, s2))
+
+  def scanRight[A,B](a: Stream[A], v: B)(f: (A, => B) => B): Stream[B] =
+    unfold(a)(s => s match {
+      case Cons(x, xs) => Some((foldRight(s, v)(f), xs()))
+      case Empty => None
+    })
 }
