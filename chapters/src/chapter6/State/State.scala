@@ -79,9 +79,17 @@ object RNG {
   val randDoubleInt: Rand[(Double, Int)] =
     both(double, int)
 
-  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = ???
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = rng => {
+    fs.foldRight((Nil : List[A], rng))((rand, b) => {
+      val (i, r2) = rand(b._2)
+      (i :: b._1, r2)
+    })
+  }
 
-  def flatMap[A,B](f: Rand[A])(g: A => Rand[B]): Rand[B] = ???
+  def flatMap[A,B](f: Rand[A])(g: A => Rand[B]): Rand[B] = rng => {
+    val (i, r) = f(rng)
+    g(i)(r)
+  }
 }
 
 //case class State[S,+A](run: S => (A, S)) {
