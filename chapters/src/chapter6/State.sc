@@ -1,6 +1,6 @@
 import chapter6.RNG.Simple
 import chapter6.RNG._
-import chapter6.State
+import chapter6._
 
 val s = unit(1)
 
@@ -28,3 +28,7 @@ State(unit(1)).map2(State(unit(2)))(_+_).run(Simple(100))
 
 val l = List[State[Int, Int]](State.unit(1), State.unit(2))
 State.sequence(l).run(100)
+
+val inputs = List[Input](Coin, Turn, Turn, Coin, Turn)
+
+Machine.simulateMachine(inputs).run(Machine(true, 10, 0))

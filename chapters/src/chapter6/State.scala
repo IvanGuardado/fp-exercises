@@ -118,7 +118,22 @@ case object Turn extends Input
 
 case class Machine(locked: Boolean, candies: Int, coins: Int)
 
-//object State {
-//  type Rand[A] = State[RNG, A]
-//  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
-//}
+object Machine {
+
+  def updateMachine(machine: Machine, input: Input): Machine = input match {
+    case Coin =>
+      if (machine.locked && machine.candies > 0) Machine(false, machine.candies, machine.coins + 1)
+      else machine
+
+    case Turn =>
+      if (!machine.locked && machine.candies > 0) Machine(true, machine.candies - 1, machine.coins)
+      else machine
+  }
+
+  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = State(machine => {
+    val newMachine = inputs.foldLeft(machine)(updateMachine)
+    ((newMachine.coins, newMachine.candies), newMachine)
+  })
+
+}
+
